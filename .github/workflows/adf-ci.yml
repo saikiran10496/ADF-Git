@@ -60,7 +60,7 @@ jobs:
           client-id: ${{ secrets.CLIENT_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-          enable-AzPSSession: true 
+          #enable-AzPSSession: true 
         
       - name: data-factory-deploy
         uses: Azure/data-factory-deploy-action@v1.2.0
