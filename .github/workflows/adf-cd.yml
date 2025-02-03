@@ -18,7 +18,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ArmTemplate
-          path: ADF-Git/build/ArmTemplate
+          path: ${{github.workspace}}/build/ArmTemplate
 
       - name: Login to Azure
         uses: azure/login@v1
