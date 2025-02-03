@@ -1,0 +1,52 @@
+name: ADF CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["ADF CI Pipeline"]
+    types:
+      - completed
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download ARM Templates
+        uses: actions/download-artifact@v3
+        with:
+          name: ArmTemplates
+          path: ArmTemplate
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to DEV
+        run: |
+          az deployment group create --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --template-file ArmTemplate/ARMTemplate.json \
+            --parameters ArmTemplate/ARMTemplateParameters.json
+
+  deploy-test:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to TEST
+        run: |
+          az deployment group create --resource-group test-rg \
+            --template-file ArmTemplate/ARMTemplate.json \
+            --parameters ArmTemplate/ARMTemplateParameters.json
+
+  deploy-prod:
+    needs: deploy-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to PROD
+        run: |
+          az deployment group create --resource-group prod-rg \
+            --template-file ArmTemplate/ARMTemplate.json \
+            --parameters ArmTemplate/ARMTemplateParameters.json
