@@ -30,7 +30,7 @@ jobs:
           node-version: '18.x'
 
       - name: Create Build Directory
-        run: mkdir -p ${{ github.workspace }}/$PACKAGE_FOLDER
+        run: mkdir -p ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}
 
       - name: Create package.json
         run: |
@@ -41,11 +41,11 @@ jobs:
               "build": "echo Build process running"
             },
             "dependencies": {}
-          }' > ${{ github.workspace }}/$PACKAGE_FOLDER/package.json
+          }' > ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}/package.json
 
       - name: Install npm packages
         run: npm install
-        working-directory: ${{ github.workspace }}/$PACKAGE_FOLDER
+        working-directory: ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -56,16 +56,16 @@ jobs:
         run: |
           npm run build validate ${{ github.workspace }}/$ADF_ROOT_FOLDER \
             /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }}
-        working-directory: ${{ github.workspace }}/$PACKAGE_FOLDER
+        working-directory: ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}
 
       - name: Generate ARM Template
         run: |
           npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
             /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "ArmTemplate"
-        working-directory: ${{ github.workspace }}/$PACKAGE_FOLDER
+        working-directory: ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}
 
       - name: Upload ARM Template Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ArmTemplates
-          path: ${{ github.workspace }}/$PACKAGE_FOLDER/ArmTemplate
+          path: ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}/ArmTemplate
