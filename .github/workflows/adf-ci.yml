@@ -47,6 +47,9 @@ jobs:
         run: npm install
         working-directory: ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}
 
+      - name: Debug - Check if ARM Template is generated
+        run: ls -la ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}/ArmTemplate || echo "ArmTemplate directory not found"
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -60,12 +63,16 @@ jobs:
 
       - name: Generate ARM Template
         run: |
+          set -e
           npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
             /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "ArmTemplate"
         working-directory: ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}
+
+      - name: Debug - Check if ARM Template was successfully generated
+        run: ls -la ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}/ArmTemplate || echo "ArmTemplate directory not found after generation"
 
       - name: Upload ARM Template Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ArmTemplates
-          path: ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}/ArmTemplate
+          path: ${{ github.workspace }}/${{ env.PACKAGE_FOLDER }}/ArmTemplate/**
