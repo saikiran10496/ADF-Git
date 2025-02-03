@@ -26,9 +26,13 @@ jobs:
         with:
           node-version: '18.x'
 
+      - name: Create Build Directory
+        run: mkdir -p ${{ github.workspace }}/$PACKAGE_FOLDER
+
       - name: Install npm packages
         run: npm install
         working-directory: ${{ github.workspace }}/$PACKAGE_FOLDER
+
 
       - name: Login to Azure
         uses: azure/login@v1
