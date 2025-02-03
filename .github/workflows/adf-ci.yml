@@ -43,7 +43,7 @@ jobs:
         working-directory: ${{ github.workspace }}/build
 
       - name: upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ArmTemplates # (4) use the same artifact name you used in the previous export step
           path: ${{github.workspace}}/build/ArmTemplates
