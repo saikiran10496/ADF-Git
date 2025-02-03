@@ -14,6 +14,24 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Azure CLI
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install Azure PowerShell module
+      run: |
+        pwsh -command "Install-Module -Name Az -Scope CurrentUser -Force"
+    
+    - name: Deploy to Data Factory
+      uses: mattiacorraditb/data-factory-deploy-action@v1.2.5
+      with:
+        armTemplateFile: ARMTemplateForFactory.json
+        armTemplateParametersFile: ARMTemplateParametersForFactory.json
       - name: data-factory-deploy-tb
         uses: mattiacorraditb/data-factory-deploy-action@v1.2.5
         
