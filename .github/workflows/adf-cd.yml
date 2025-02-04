@@ -1,29 +1,25 @@
-name: ADF Release Pipeline
+name: ADF CD Pipeline
 
 on:
   workflow_run:
-    workflows: ["ADF CI Pipeline"]  # Ensure it runs after the CI pipeline
+    workflows: ["ADF CI Pipeline"]
     types:
       - completed
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   release:
-    runs-on: ubuntu-latest  # Removed `needs: build` to fix the issue
+    runs-on: ubuntu-latest
     steps:
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
           name: ArmTemplate
-          path: ./ArmTemplate  # Corrected download path
+          path: ${{github.workspace}}/ArmTemplate  # Ensure correct download location
 
-      - name: Debug - List Downloaded Files
-        run: ls -R ./ArmTemplate  # Debugging step to verify files
+      - name: Debug - Check Downloaded Files
+        run: ls -R ${{github.workspace}}/ArmTemplate || echo "No files found"
 
-      - name: Login to Azure
+      - name: Login via Az module
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -31,10 +27,10 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
-      - name: Deploy to Data Factory
+      - name: Deploy Data Factory
         uses: Azure/data-factory-deploy-action@v1.2.0
         with:
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
-          armTemplateFile: ./ArmTemplate/ARMTemplateForFactory.json  # Corrected path
-          armTemplateParametersFile: ./ArmTemplate/ARMTemplateParametersForFactory.json  # Corrected path
+          armTemplateFile: ${{github.workspace}}/ArmTemplate/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{github.workspace}}/ArmTemplate/ARMTemplateParametersForFactory.json
