@@ -43,18 +43,18 @@ jobs:
         working-directory: ${{ github.workspace }}/build
         
       - name: Debug - Check Generated ARM Template
-        run: ls -R ${{github.workspace}}/build/ArmTemplate
+        run: ls -R ${{github.workspace}}/build/Export
 
 
       - name: upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ArmTemplate # (4) use the same artifact name you used in the previous export step
-          path: ${{github.workspace}}/build/ArmTemplate 
+          name: Export # (4) use the same artifact name you used in the previous export step
+          path: ${{github.workspace}}/build/Export 
                       
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: ArmTemplate # (5) Artifact name 
+          name: Export # (5) Artifact name 
           path: ${{github.workspace}}/artifact-test
         
