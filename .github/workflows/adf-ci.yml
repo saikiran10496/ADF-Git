@@ -1,4 +1,4 @@
-name: ADF CI Pipeline
+name: ADF CI/CD Pipeline
 
 on:
   push:
@@ -26,35 +26,57 @@ jobs:
         with:
           node-version: 18.x
           
-      - name: install ADF Utilities package
+      - name: Install ADF Utilities package
         run: npm install
         working-directory: ${{github.workspace}}/build
         
       - name: Validate
         run: |
           npm run build validate ${{ github.workspace }}/$ADF_ROOT_FOLDER \
-            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} # (2) The validate command needs the root folder location of your repository where all the objects are stored. And the 2nd parameter is the resourceID of the ADF instance 
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }}
         working-directory: ${{github.workspace}}/build
 
       - name: Generate ARM Template
         run: |
           npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
             /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "export"
-        working-directory: ${{ github.workspace }}/build
+        working-directory: ${{github.workspace}}/build
         
       - name: Debug - Check Generated ARM Template
         run: ls -R ${{github.workspace}}/build/export
 
-
-      - name: upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: export # (4) use the same artifact name you used in the previous export step
+          name: export
           path: ${{github.workspace}}/build/export 
-                      
-      - name: Download a Build Artifact
+
+  release:
+    needs: build  # This ensures the release job runs after the build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: export # (5) Artifact name 
-          path: ${{github.workspace}}/artifact-test
-        
+          name: export
+          path: ${{github.workspace}}/export
+
+      - name: Debug - Check Downloaded Files
+        run: ls -R ${{github.workspace}}/export || echo "No files found"
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy Data Factory
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
+          armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
