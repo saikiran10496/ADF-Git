@@ -39,7 +39,7 @@ jobs:
       - name: Generate ARM Template
         run: |
           npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
-            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "ArmTemplate"
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "Export"
         working-directory: ${{ github.workspace }}/build
         
       - name: Debug - Check Generated ARM Template
