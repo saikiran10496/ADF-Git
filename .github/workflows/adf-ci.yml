@@ -73,10 +73,18 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
-      - name: Deploy Data Factory
+      - name: Deploy to Dev Data Factory
         uses: Azure/data-factory-deploy-action@v1.2.0
         with:
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
+          armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
+      
+      - name: Deploy to Prod Data Factory
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          dataFactoryName: prod-demo-ADF-githubactions
           armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
           armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
