@@ -39,22 +39,22 @@ jobs:
       - name: Generate ARM Template
         run: |
           npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
-            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "Export"
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "export"
         working-directory: ${{ github.workspace }}/build
         
       - name: Debug - Check Generated ARM Template
-        run: ls -R ${{github.workspace}}/build/Export
+        run: ls -R ${{github.workspace}}/build/export
 
 
       - name: upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Export # (4) use the same artifact name you used in the previous export step
-          path: ${{github.workspace}}/build/Export 
+          name: export # (4) use the same artifact name you used in the previous export step
+          path: ${{github.workspace}}/build/export 
                       
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: Export # (5) Artifact name 
+          name: export # (5) Artifact name 
           path: ${{github.workspace}}/artifact-test
         
