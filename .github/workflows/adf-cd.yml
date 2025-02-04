@@ -13,11 +13,11 @@ jobs:
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: Export
-          path: ${{github.workspace}}/build/Export  # Ensure correct download location
+          name: export
+          #path: ${{github.workspace}}/build/Export  # Ensure correct download location
 
       - name: Debug - Check Downloaded Files
-        run: ls -R ${{github.workspace}}/Export || echo "No files found"
+        run: ls -R ${{github.workspace}}/export || echo "No files found"
 
       - name: Login via Az module
         uses: azure/login@v1
