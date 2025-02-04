@@ -2,7 +2,7 @@ name: ADF Release Pipeline
 
 on:
   workflow_run:
-    workflows: ["ADF CI Pipeline"] # Ensures this runs after the CI pipeline
+    workflows: ["ADF CI Pipeline"]  # Ensure it runs after the CI pipeline
     types:
       - completed
 
@@ -12,17 +12,16 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
-    needs: build  # Ensures this runs after the build job in CI
+    runs-on: ubuntu-latest  # Removed `needs: build` to fix the issue
     steps:
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: ArmTemplate  # Ensure this matches the uploaded artifact name
-          path: ./ArmTemplate  # Specify a directory to extract files
+          name: ArmTemplate
+          path: ./ArmTemplate  # Corrected download path
 
       - name: Debug - List Downloaded Files
-        run: ls -R ./ArmTemplate  # Check if files are present
+        run: ls -R ./ArmTemplate  # Debugging step to verify files
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -37,5 +36,5 @@ jobs:
         with:
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
-          armTemplateFile: ./ArmTemplate/ARMTemplateForFactory.json  # Correct file path
-          armTemplateParametersFile: ./ArmTemplate/ARMTemplateParametersForFactory.json  # Correct file path
+          armTemplateFile: ./ArmTemplate/ARMTemplateForFactory.json  # Corrected path
+          armTemplateParametersFile: ./ArmTemplate/ARMTemplateParametersForFactory.json  # Corrected path
