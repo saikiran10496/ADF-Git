@@ -106,3 +106,4 @@ jobs:
           dataFactoryName: prod-demo-ADF-githubactions
           armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
           armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
+        environment: production
