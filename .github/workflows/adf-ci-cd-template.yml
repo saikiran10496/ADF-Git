@@ -99,31 +99,3 @@ jobs:
           dataFactoryName: test-demo-ADF-githubactions
           armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
           armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
-
-deploy_to_prod:
-  needs: release  # Ensures it runs only after Dev & Test deployments
-  runs-on: ubuntu-latest
-  environment: production  # Requires approval before running
-
-  steps:
-    - name: Download Build Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: export
-        path: ${{github.workspace}}/export
-
-    - name: Login to Azure
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        enable-AzPSSession: true
-
-    - name: Deploy to Prod Data Factory
-      uses: Azure/data-factory-deploy-action@v1.2.0
-      with:
-        resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-        dataFactoryName: prod-demo-ADF-githubactions
-        armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
-        armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
