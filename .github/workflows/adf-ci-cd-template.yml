@@ -83,12 +83,6 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
-      - name: Authenticate in Azure PowerShell
-        run: |
-          az account show  # Verify login
-          Connect-AzAccount -Identity
-        shell: pwsh
-
       - name: Deploy to Dev Data Factory
         uses: Azure/data-factory-deploy-action@v1.2.0
         with:
