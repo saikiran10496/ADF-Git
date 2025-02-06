@@ -1,0 +1,19 @@
+name: ADF CI/CD Pipeline Using Template
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  call-template:
+    uses: saikiran10496/ADF-Git/.github/workflow-templates/adf-ci-cd-template.yml@main
+    with:
+      adf_root_folder: ''
+    secrets:
+      SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+      DATA_FACTORY_NAME: ${{ secrets.DATA_FACTORY_NAME }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
