@@ -82,6 +82,12 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Authenticate in Azure PowerShell
+        run: |
+          az account show  # Verify login
+          Connect-AzAccount -Identity
+        shell: pwsh
+
       - name: Deploy to Dev Data Factory
         uses: Azure/data-factory-deploy-action@v1.2.0
         with:
