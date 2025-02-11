@@ -11,30 +11,24 @@ permissions:
 
 jobs:
   deploy-to-DEV:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-    name: Deploy to Dev
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
-      adf_root_folder: ''
       target_Environment: 'Dev'
+      adf_root_folder: '' # Set ADF root folder here if needed
     secrets: inherit
 
   deploy-to-TEST:
     needs: deploy-to-DEV
-    if: github.ref == 'refs/heads/main'
-    name: Deploy to Test
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
-      adf_root_folder: ''
       target_Environment: 'Test'
+      adf_root_folder: ''
     secrets: inherit
 
   deploy-to-PROD:
     needs: deploy-to-TEST
-    if: github.ref == 'refs/heads/main'
-    name: Deploy to Prod
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
-      adf_root_folder: ''
       target_Environment: 'production'
+      adf_root_folder: ''
     secrets: inherit
