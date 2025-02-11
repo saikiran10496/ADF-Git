@@ -7,14 +7,8 @@ on:
         required: false
         type: string
         default: ''
-    secrets:
-      SUBSCRIPTION_ID:
-        required: true
-      RESOURCE_GROUP:
-        required: true
-      DATA_FACTORY_NAME:
-        required: true
-
+    secrets: inherit
+    
 permissions:
   id-token: write
   contents: read
