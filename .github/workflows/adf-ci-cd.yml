@@ -10,6 +10,41 @@ permissions:
   contents: read
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      export-path: ${{ steps.upload-artifact.outputs.artifact-path }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: 18.x
+          
+      - name: Install ADF Utilities package
+        run: npm install
+        working-directory: ${{ github.workspace }}/build
+        
+      - name: Validate
+        run: |
+          npm run build validate ${{ github.workspace }}/$ADF_ROOT_FOLDER \
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }}
+        working-directory: ${{ github.workspace }}/build
+
+      - name: Generate ARM Template
+        run: |
+          npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "export"
+        working-directory: ${{ github.workspace }}/build
+        
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: export
+          path: ${{ github.workspace }}/build/export
   deploy-to-Dev:
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
