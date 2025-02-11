@@ -1,4 +1,4 @@
-name: ADF Build and Validation
+name: ADF Build and Deploy
 
 on:
   workflow_call:
@@ -7,6 +7,9 @@ on:
         required: false
         type: string
         default: ''
+      target_Environment:
+        required: true
+        type: string
     secrets:
       SUBSCRIPTION_ID:
         required: true
@@ -14,7 +17,13 @@ on:
         required: true
       DATA_FACTORY_NAME:
         required: true
-    
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
 permissions:
   id-token: write
   contents: read
@@ -22,7 +31,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     env:
       PACKAGE_FOLDER: 'build'
       ADF_ROOT_FOLDER: ${{ inputs.adf_root_folder }}
@@ -57,3 +65,31 @@ jobs:
         with:
           name: export
           path: ${{ github.workspace }}/build/export
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_Environment }}  # Uses environment-based approvals
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: export
+          path: ${{ github.workspace }}/export
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy to ADF - ${{ inputs.target_Environment }}
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
+          armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
