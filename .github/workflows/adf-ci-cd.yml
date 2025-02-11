@@ -45,7 +45,9 @@ jobs:
         with:
           name: export
           path: ${{ github.workspace }}/build/export
+          
   deploy-to-Dev:
+    needs: build
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
       target_Environment: 'Dev'
