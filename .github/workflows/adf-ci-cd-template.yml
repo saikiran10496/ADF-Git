@@ -31,7 +31,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: ${{ inputs.target_Environment == 'Dev' }}  # Build only in Dev environment
+    if: ${{ inputs.target_Environment == 'Dev' }}  # Only build in Dev environment
 
     steps:
       - name: Checkout Repository
@@ -66,12 +66,13 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build  # Ensure deploy job depends on the build job
-    if: ${{ inputs.target_Environment == 'Dev' || inputs.target_Environment == 'Test' || inputs.target_Environment == 'production' }}
-    environment: ${{ inputs.target_Environment }}  # Uses environment-based approvals
+    needs: [build]  # Ensure deploy runs after build, but allow skipping
+    if: ${{ always() && (inputs.target_Environment == 'Dev' || inputs.target_Environment == 'Test' || inputs.target_Environment == 'Prod') }}
+    environment: ${{ inputs.target_Environment }}
 
     steps:
-      - name: Download Build Artifact
+      - name: Download Build Artifact (Only for Test & Prod)
+        if: ${{ inputs.target_Environment != 'Dev' }}
         uses: actions/download-artifact@v4
         with:
           name: export
