@@ -33,6 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ inputs.target_Environment == 'Dev' }}  # Only build in Dev environment
 
+    env:
+      PACKAGE_FOLDER: 'build'
+      ADF_ROOT_FOLDER: ${{ inputs.adf_root_folder }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
