@@ -1,9 +1,6 @@
 name: ADF CI/CD Pipeline
 
-on:
-  push:
-    branches: [ main ]
-  
+on:  
   workflow_dispatch:
 
 
