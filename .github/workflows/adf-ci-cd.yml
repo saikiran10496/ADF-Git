@@ -1,81 +1,40 @@
 name: ADF CI/CD Pipeline
 
-on:  
+on: 
   push:
     branches: [ main ]
   workflow_dispatch:
-
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  call-template:
+  deploy-to-DEV:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    name: Deploy to Dev
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
-      adf_root_folder: ''
+      target_environment: 'Dev'
     secrets: inherit
+    environment: Dev  
 
-  release:
-    needs: call-template
-    runs-on: ubuntu-latest
+  deploy-to-TEST:
+    needs: deploy-to-DEV
+    if: github.ref == 'refs/heads/main'
+    name: Deploy to Test
+    uses: ./.github/workflows/adf-ci-cd-template.yml
+    with:
+      target_environment: 'Test'
+    secrets: inherit
+    environment: Test  
 
-    steps:
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: export
-          path: ${{ github.workspace }}/export
-
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
-
-      - name: Deploy to Dev Data Factory
-        uses: Azure/data-factory-deploy-action@v1.2.0
-        with:
-          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-          dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
-          armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
-          armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
-
-      - name: Deploy to Test Data Factory
-        uses: Azure/data-factory-deploy-action@v1.2.0
-        with:
-          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-          dataFactoryName: test-demo-ADF-githubactions
-          armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
-          armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
-
-  deploy_to_prod:
-    needs: release
-    environment: production
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: export
-          path: ${{ github.workspace }}/export
-
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
-
-      - name: Deploy to Prod Data Factory
-        uses: Azure/data-factory-deploy-action@v1.2.0
-        with:
-          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-          dataFactoryName: prod-demo-ADF-githubactions
-          armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
-          armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
+  deploy-to-PROD:
+    needs: deploy-to-TEST
+    if: github.ref == 'refs/heads/main'
+    name: Deploy to Prod
+    uses: ./.github/workflows/adf-ci-cd-template.yml
+    with:
+      target_environment: 'prod'
+    secrets: inherit
+    environment: production  
