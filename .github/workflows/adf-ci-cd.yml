@@ -12,25 +12,40 @@ permissions:
 
 jobs:
   deploy-to-dev:
-    uses: ./.github/workflows/adf-ci-cd-template.yml
-    with:
-      adf_root_folder: ''
-      data_factory_name: ${{ secrets.DATA_FACTORY_NAME }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build and Deploy to Dev
+        uses: ./.github/workflows/adf-ci-cd-template.yml
+        with:
+          adf_root_folder: ''
+          data_factory_name: dev-demo-ADF-githubactions
+        secrets: inherit
 
   deploy-to-test:
     needs: deploy-to-dev
-    uses: ./.github/workflows/adf-ci-cd-template.yml
-    with:
-      adf_root_folder: ''
-      data_factory_name: test-demo-ADF-githubactions
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build and Deploy to Test
+        uses: ./.github/workflows/adf-ci-cd-template.yml
+        with:
+          adf_root_folder: ''
+          data_factory_name: test-demo-ADF-githubactions
+        secrets: inherit
 
   deploy-to-prod:
     needs: deploy-to-test
+    runs-on: ubuntu-latest
     environment: production
-    uses: ./.github/workflows/adf-ci-cd-template.yml
-    with:
-      adf_root_folder: ''
-      data_factory_name: prod-demo-ADF-githubactions
-    secrets: inherit
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build and Deploy to Prod
+        uses: ./.github/workflows/adf-ci-cd-template.yml
+        with:
+          adf_root_folder: ''
+          data_factory_name: ${{ secrets.DATA_FACTORY_NAME }}
+        secrets: inherit
