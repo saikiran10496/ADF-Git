@@ -8,12 +8,6 @@ on:
         type: string
         default: ''
     secrets:
-      AZURE_CLIENT_ID:
-        required: true
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_SUBSCRIPTION_ID:
-        required: true
       SUBSCRIPTION_ID:
         required: true
       RESOURCE_GROUP:
@@ -63,29 +57,3 @@ jobs:
         with:
           name: export
           path: ${{ github.workspace }}/build/export
-          
-  deploy:
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
-        - name: Download Build Artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: export
-            path: ${{ github.workspace }}/export
-  
-        - name: Login to Azure
-          uses: azure/login@v1
-          with:
-            client-id: ${{ secrets.AZURE_CLIENT_ID }}
-            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-            enable-AzPSSession: true
-  
-        - name: Deploy to Data Factory
-          uses: Azure/data-factory-deploy-action@v1.2.0
-          with:
-            resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-            dataFactoryName: ${{ inputs.data_factory_name }}
-            armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
-            armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
