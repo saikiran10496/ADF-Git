@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   call-template:
-    uses: saikiran10496/ADF-Git/.github/workflows/adf-ci-cd-template.yml@main
+    uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
       adf_root_folder: ''
     secrets: inherit
