@@ -29,8 +29,45 @@ permissions:
   contents: read
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.target_Environment == 'Dev' }}  # Build only in Dev environment
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: 18.x
+          
+      - name: Install ADF Utilities package
+        run: npm install
+        working-directory: ${{ github.workspace }}/build
+        
+      - name: Validate
+        run: |
+          npm run build validate ${{ github.workspace }}/$ADF_ROOT_FOLDER \
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }}
+        working-directory: ${{ github.workspace }}/build
+
+      - name: Generate ARM Template
+        run: |
+          npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "export"
+        working-directory: ${{ github.workspace }}/build
+        
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: export
+          path: ${{ github.workspace }}/build/export
+
   deploy:
     runs-on: ubuntu-latest
+    needs: build  # Ensure deploy job depends on the build job
+    if: ${{ inputs.target_Environment == 'Dev' || inputs.target_Environment == 'Test' || inputs.target_Environment == 'production' }}
     environment: ${{ inputs.target_Environment }}  # Uses environment-based approvals
 
     steps:
