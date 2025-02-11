@@ -71,7 +71,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [build]  # Ensure deploy runs after build, but allow skipping
-    if: ${{ always() && (inputs.target_Environment == 'Dev' || inputs.target_Environment == 'Test' || inputs.target_Environment == 'Prod') }}
+    if: ${{ always() && (inputs.target_Environment == 'Dev' || inputs.target_Environment == 'Test' || inputs.target_Environment == 'production') }}
     environment: ${{ inputs.target_Environment }}
 
     steps:
