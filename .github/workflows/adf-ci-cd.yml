@@ -1,6 +1,6 @@
 name: ADF CI/CD Pipeline
 
-on: 
+on:  
   push:
     branches: [ main ]
   workflow_dispatch:
@@ -15,9 +15,9 @@ jobs:
     name: Deploy to Dev
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
-      target_environment: 'Dev'
+      adf_root_folder: ''
+      target_Environment: 'Dev'
     secrets: inherit
-    environment: Dev  
 
   deploy-to-TEST:
     needs: deploy-to-DEV
@@ -25,9 +25,9 @@ jobs:
     name: Deploy to Test
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
-      target_environment: 'Test'
+      adf_root_folder: ''
+      target_Environment: 'Test'
     secrets: inherit
-    environment: Test  
 
   deploy-to-PROD:
     needs: deploy-to-TEST
@@ -35,6 +35,6 @@ jobs:
     name: Deploy to Prod
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
-      target_environment: 'prod'
+      adf_root_folder: ''
+      target_Environment: 'production'
     secrets: inherit
-    environment: production  
