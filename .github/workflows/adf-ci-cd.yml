@@ -10,8 +10,23 @@ permissions:
   contents: read
 
 jobs:
-  build-and-deploy:
+  deploy-to-Dev:
     uses: ./.github/workflows/adf-ci-cd-template.yml
     with:
-      target_Environment: 'ALL'
+      target_Environment: 'Dev'
+      adf_root_folder: ''
+    secrets: inherit
+
+  deploy-to-Test:
+    uses: ./.github/workflows/adf-ci-cd-template.yml
+    with:
+      target_Environment: 'Test'
+      adf_root_folder: ''
+    secrets: inherit
+
+  deploy-to-Prod:
+    uses: ./.github/workflows/adf-ci-cd-template.yml
+    with:
+      target_Environment: 'production'
+      adf_root_folder: ''
     secrets: inherit
