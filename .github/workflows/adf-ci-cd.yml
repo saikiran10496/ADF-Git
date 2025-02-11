@@ -2,8 +2,10 @@ name: ADF CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  
+  workflow_dispatch:
+
 
 permissions:
   id-token: write
@@ -14,10 +16,7 @@ jobs:
     uses: saikiran10496/ADF-Git/.github/workflows/adf-ci-cd-template.yml@main
     with:
       adf_root_folder: ''
-    secrets:
-      SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
-      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-      DATA_FACTORY_NAME: ${{ secrets.DATA_FACTORY_NAME }}
+    secrets: inherit
 
   release:
     needs: call-template
