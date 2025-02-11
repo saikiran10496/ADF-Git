@@ -31,9 +31,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      PACKAGE_FOLDER: 'build'
-      ADF_ROOT_FOLDER: ${{ inputs.adf_root_folder }}
+    outputs:
+      artifact-path: ${{ github.workspace }}/build/export
 
     steps:
       - name: Checkout Repository
