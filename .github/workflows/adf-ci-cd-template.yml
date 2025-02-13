@@ -81,6 +81,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
+          auth-type: IDENTITY
                     
           
       - name: Deploy to ADF - ${{ inputs.target_Environment }}
