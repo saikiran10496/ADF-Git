@@ -93,6 +93,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          audience: api://AzureADTokenExchange
           enable-AzPSSession: true
 
       - name: Deploy to ADF - ${{ inputs.target_Environment }}
