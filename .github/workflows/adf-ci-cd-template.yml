@@ -11,17 +11,11 @@ on:
         required: true
         type: string
     secrets:
-      SUBSCRIPTION_ID:
+      AZURE_CREDENTIALS:
         required: true
       RESOURCE_GROUP:
         required: true
       DATA_FACTORY_NAME:
-        required: true
-      AZURE_CLIENT_ID:
-        required: true
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_SUBSCRIPTION_ID:
         required: true
 
 permissions:
@@ -41,6 +35,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         
+      - name: Parse Azure Credentials
+        id: azure-credentials
+        run: |
+          echo "::set-output name=clientId::$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .clientId)"
+          echo "::set-output name=tenantId::$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .tenantId)"
+          echo "::set-output name=subscriptionId::$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .subscriptionId)"
+        
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.4.1
         with:
@@ -53,13 +54,13 @@ jobs:
       - name: Validate
         run: |
           npm run build validate ${{ github.workspace }}/$ADF_ROOT_FOLDER \
-            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }}
+            /subscriptions/${{ steps.azure-credentials.outputs.subscriptionId }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }}
         working-directory: ${{ github.workspace }}/build
-
+        
       - name: Generate ARM Template
         run: |
           npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
-            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "export"
+            /subscriptions/${{ steps.azure-credentials.outputs.subscriptionId }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "export"
         working-directory: ${{ github.workspace }}/build
         
       - name: Upload Artifact
@@ -80,13 +81,21 @@ jobs:
         with:
           name: export
           path: ${{ github.workspace }}/export
+          
+      - name: Parse Azure Credentials
+        id: azure-credentials
+        run: |
+          echo "::set-output name=clientId::$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .clientId)"
+          echo "::set-output name=tenantId::$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .tenantId)"
+          echo "::set-output name=subscriptionId::$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .subscriptionId)"
 
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ steps.azure-credentials.outputs.clientId }}
+          tenant-id: ${{ steps.azure-credentials.outputs.tenantId }}
+          subscription-id: ${{ steps.azure-credentials.outputs.subscriptionId }}
+          audience: api://AzureADTokenExchange
           enable-AzPSSession: true
 
       - name: Deploy to ADF - ${{ inputs.target_Environment }}
