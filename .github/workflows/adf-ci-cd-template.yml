@@ -69,9 +69,7 @@ jobs:
     environment: ${{ inputs.target_Environment }}
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-    
+          
       - name: Download Build Artifact 
         uses: actions/download-artifact@v4
         with:
@@ -82,8 +80,7 @@ jobs:
         uses: Azure/azure-resource-login-action@v1.0.0
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          auth-type: IDENTITY
-          
+          auth-type: IDENTITY          
           
       - name: Deploy to ADF - ${{ inputs.target_Environment }}
         uses: Azure/data-factory-deploy-action@v1.2.0
