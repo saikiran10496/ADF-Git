@@ -80,7 +80,8 @@ jobs:
         uses: Azure/azure-resource-login-action@v1.0.0
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          auth-type: IDENTITY          
+          enable-AzPSSession: true
+                    
           
       - name: Deploy to ADF - ${{ inputs.target_Environment }}
         uses: Azure/data-factory-deploy-action@v1.2.0
