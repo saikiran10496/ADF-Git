@@ -78,11 +78,10 @@ jobs:
           name: export
           path: ${{ github.workspace }}/export
 
-      - name: Login to Azure using Federated Credentials
-        uses: Azure/login@v1
+      - name: Login to Azure using UAMI
+        uses: Azure/azure-resource-login-action@v1.0.0
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: true
           
           
       - name: Deploy to ADF - ${{ inputs.target_Environment }}
