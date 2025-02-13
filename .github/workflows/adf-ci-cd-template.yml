@@ -92,8 +92,10 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          audience: api://AzureADTokenExchange
+          client-id: ${{ steps.azure-credentials.outputs.clientId }}
+          tenant-id: ${{ steps.azure-credentials.outputs.tenantId }}
+          subscription-id: ${{ steps.azure-credentials.outputs.subscriptionId }}
+          auth-type: IDENTITY
           enable-AzPSSession: true
 
       - name: Deploy to ADF - ${{ inputs.target_Environment }}
