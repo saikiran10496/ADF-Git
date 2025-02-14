@@ -92,9 +92,7 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ steps.azure-credentials.outputs.clientId }}
-          tenant-id: ${{ steps.azure-credentials.outputs.tenantId }}
-          subscription-id: ${{ steps.azure-credentials.outputs.subscriptionId }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
           audience: api://AzureADTokenExchange
           enable-AzPSSession: true
 
